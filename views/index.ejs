@@ -15,7 +15,8 @@
 </body>
 <script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript">
-  var FPS = 60 / 1000;
+  var FPS = 240;
+  var delay = 1000 / FPS
   var canvas = document.getElementById("preview");
   var context = canvas.getContext('2d');
 
@@ -51,7 +52,7 @@
     socket.emit('stream', canvas.toDataURL('image/webp'));
   }
 
-  // $(function () {
+
   navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
 
   if (navigator.getUserMedia) {
@@ -60,8 +61,8 @@
 
   setInterval(function () {
     viewVideo(video, context);
-  }, FPS);
-  // });
+  }, delay);
+
 
 </script>
 
