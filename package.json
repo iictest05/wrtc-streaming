@@ -5,11 +5,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "lint": "eslint index.js examples lib test",
-    "start": "node index.js",
-    "test": "npm run test:unit && npm run test:integration",
-    "test:unit": "tape 'test/unit/**/*.js'",
-    "test:integration": "tape 'test/integration/**/*.js'"
+    "start": "node index.js"
   },
   "keywords": [
     "Web",
@@ -30,5 +26,8 @@
   "devDependencies": {
     "eslint": "^5.15.1",
     "tape": "^4.10.0"
+  },
+  "engines": {
+    "node": ">=7.0.0 < 8.0.0"
   }
 }
