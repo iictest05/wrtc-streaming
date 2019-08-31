@@ -1,24 +1,35 @@
 {
-  "name": "simplewebrtc-messenger",
-  "version": "1.0.0",
-  "description": "Simple WebRTC Messenger",
+  "name": "node-webrtc-examples",
+  "version": "0.1.0",
+  "description": "This project presents a few example applications using node-webrtc.",
+  "private": true,
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "lint": "eslint index.js examples lib test",
+    "start": "node index.js",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "tape 'test/unit/**/*.js'",
+    "test:integration": "tape 'test/integration/**/*.js'"
   },
   "keywords": [
-    "WebRTC"
+    "Web",
+    "Audio"
   ],
-  "author": "Michael Wanyoike",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:brandiqa/simplewebrtc-messenger.git"
-  },
+  "author": "Mark Andrus Roberts <markandrusroberts@gmail.com>",
+  "license": "BSD-3-Clause",
   "dependencies": {
-    "express": "^4.16.3",
-    "handlebars": "^4.1.2",
-    "jquery": "^3.4.1",
-    "semantic-ui-css": "^2.3.1",
-    "simplewebrtc": "^3.0.2"
+    "Scope": "github:kevincennis/Scope",
+    "body-parser": "^1.18.3",
+    "browserify-middleware": "^8.1.1",
+    "canvas": "^2.4.1",
+    "color-space": "^1.16.0",
+    "express": "^4.16.4",
+    "node-fetch": "^2.3.0",
+    "uuid": "^3.3.2",
+    "wrtc": "^0.3.6"
+  },
+  "devDependencies": {
+    "eslint": "^5.15.1",
+    "tape": "^4.10.0"
   }
 }

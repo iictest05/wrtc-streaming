@@ -1,44 +1,88 @@
-# Simple WebRTC Messenger
+node-webrtc-examples
+====================
 
-A tutorial on building a WebRTC video chat app with [SimpleWebRTC](https://simplewebrtc.com/) , that allows you to communicate with (for example) your customers in real-time.
+This project presents a few example applications using node-webrtc.
 
-Article URL: [http://www.sitepoint.com/webrtc-video-chat-application-peerjs](http://www.sitepoint.com/webrtc-video-chat-application-peerjs)
+- [audio-video-loopback](examples/audio-video-loopback): relays incoming audio
+  and video using RTCRtpTransceivers.
+- [ping-pong](examples/ping-pong): simple RTCDataChannel ping/pong example.
+- [pitch-detector](examples/pitch-detector): pitch detector implemented using
+  RTCAudioSink and RTCDataChannel.
+- [sine-wave](examples/sine-wave): generates a sine wave using RTCAudioSource;
+  frequency control implemented using RTCDataChannel.
+- [sine-wave-stereo](examples/sine-wave-stereo): generates a stereo sine wave
+  using RTCAudioSource; panning control implemented using RTCDataChannel.
+- [video-compositing](examples/video-compositing): uses RTCVideoSink,
+  [node-canvas](https://github.com/Automattic/node-canvas), and RTCVideoSource
+  to draw spinning text on top of an incoming video.
 
-## Requirements
+Usage
+-----
 
-* [Node.js](http://nodejs.org/) Environment
-* An account with [now.sh](https://zeit.co/now)
+Install the project's dependencies and run the tests before starting the
+application server:
 
-## Installation Steps
+```
+npm install
+npm test
+npm start
+```
 
-1. Clone repository
-2. Run `npm install`
-3. Start the server with `npm start` or `node server`
-4. Visit [http://localhost:3000/](http://localhost:3000/)
+Then, navigate to [http://localhost:3000](http://localhost:3000).
 
-HTTPS is required for remote cameras and remote microphone to work. Currently, there's no known method for creating SSL certificates for a private IP address. You can easily acquire a free SSL certificate for a public domain.
+Architecture
+------------
 
-## Deployment Steps
+Each example application under [examples/](examples) has a Client and Server
+component. RTCPeerConnection negotiation is supported via a REST API (described
+below), and is abstracted away from each example application. Code for
+RTCPeerConnection negotiation lives under [lib/](lib).
 
-If you would like to quickly test out the app on a public domain without dealing with the hassles of setting up SSL, simply deploy they app with [now.sh](https://zeit.co/now)
+### RTCPeerConnection Negotiation
 
-1. Clone repository
-2. Run `npm install`
-3. Run `npm install -g now`
-4. Deploy the server with `now --public`. Follow the printed out instructions
-5. Visit the url provided
-6. Enter room name and username, click 'Create Room'
-7. Invite a friend or use another device with a front camera, visit the url. Give another name but provide the same room name
-8. Remote videos should show up on both videos. You can also send chat which also works without video
+RTCPeerConnections are negotiated via REST API. The Server always offers (with
+host candidates) and the Client always answers. In order to negotiate a new
+RTCPeerConnection, the Client first POSTs to `/connections`. The Server responds
+with an RTCPeerConnection ID and SDP offer. Finally, the Client POSTs an SDP
+answer to the RTCPeerConnection's URL.
 
-If the video stutters or freezes, it's probably due to the slow upload speeds given by your ISP.
+```
+Client                                               Server
+  |                                                     |
+  |  POST /connections                                  |
+  |                                                     |
+  |---------------------------------------------------->|
+  |                                                     |
+  |                                             200 OK  |
+  |  { "id": "$ID", "localDescription": "$SDP_OFFER" }  |
+  |                                                     |
+  |<----------------------------------------------------|
+  |                                                     |
+  |  POST /connections/$ID/remote-description           |
+  |  $SDP_ANSWER                                        |
+  |                                                     |
+  |---------------------------------------------------->|
+  |                                                     |
+  |                                             200 OK  |
+  |                                                     |
+  |<----------------------------------------------------|
+```
 
-## License
+### RTCPeerConnection Teardown
 
-The MIT License (MIT) Copyright (c)
+RTCPeerConnections can be proactively torn down by sending a DELETE to the
+RTCPeerConnection's URL; otherwise, ICE disconnection or failure, if unresolved
+within the `timeToReconnect` window, will also trigger teardown. The default
+`timeToReconnect` value is 10 s.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+Client                                               Server
+  |                                                     |
+  |  DELETE /connections/$ID                            |
+  |                                                     |
+  |---------------------------------------------------->|
+  |                                                     |
+  |                                             200 OK  |
+  |                                                     |
+  |<----------------------------------------------------|
+```
