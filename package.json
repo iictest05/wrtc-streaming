@@ -26,5 +26,8 @@
   "devDependencies": {
     "eslint": "^5.15.1",
     "tape": "^4.10.0"
+  },
+  "engines": {
+    "node": "10.15.3"
   }
 }
